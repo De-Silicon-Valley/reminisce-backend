@@ -1,0 +1,7 @@
+.yarn
+dist
+node_modules
+storybook-static
+packages/westwood-client/.next/
+*.json
+*.html
