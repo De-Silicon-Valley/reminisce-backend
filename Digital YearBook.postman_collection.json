@@ -1,0 +1,345 @@
+{
+	"info": {
+		"_postman_id": "19a2fde9-95cf-42f0-9933-52e64183a630",
+		"name": "Digital YearBook",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44748933",
+		"_collection_link": "https://cloudy-desert-612130.postman.co/workspace/Reminisce~a3ee8d0b-3829-4437-9dc1-e347e0307ca0/collection/44748933-19a2fde9-95cf-42f0-9933-52e64183a630?action=share&source=collection_link&creator=44748933"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Sign Up",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Admin token has been set.\", function() {",
+									"    const adminToken = pm.response.json().token;",
+									"    pm.environment.set(\"bearerToken\", adminToken)",
+									"})",
+									"",
+									"",
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\":\"mcsam\",\n  \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{orion-url}}/signin",
+							"host": [
+								"{{orion-url}}"
+							],
+							"path": [
+								"signin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign In",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin Operations",
+			"item": [
+				{
+					"name": "Update Student Record",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Mc Sam\",\n  \"nickname\": \"McSam\",\n  \"image\": \"https://google.come/themcsam.png\",\n  \"quote\": \"Hardwork beats talent when talent fails to work hard\",\n  \"referenceNumber\": \"thisismcsam\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{orion-url}}/student",
+							"host": [
+								"{{orion-url}}"
+							],
+							"path": [
+								"student"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Student Record",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{bearertoken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"referenceNumber\": \"thisismcsam\",\n    \"year\": \"2023\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localhost}}/student",
+							"host": [
+								"{{localhost}}"
+							],
+							"path": [
+								"student"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Bulk upload student reference numbers",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"Reference Numbers\": [\"23323222\",\"23234343\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{orion-url}}/students/2022",
+							"host": [
+								"{{orion-url}}"
+							],
+							"path": [
+								"students",
+								"2022"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Student Record",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{bearerToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"referenceNumber\": \"thisismcsam\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{orion-url}}/student/",
+							"host": [
+								"{{orion-url}}"
+							],
+							"path": [
+								"student",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Client Operations",
+			"item": [
+				{
+					"name": "Update Student Record",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nickname\": \"DeathStar\",\n  \"referenceNumber\": \"thisismcsam\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{orion-url}}/student",
+							"host": [
+								"{{orion-url}}"
+							],
+							"path": [
+								"student"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get student records by year",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{orion-url}}/student/2022",
+							"host": [
+								"{{orion-url}}"
+							],
+							"path": [
+								"student",
+								"2022"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all student records",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{orion-url}}/student/",
+							"host": [
+								"{{orion-url}}"
+							],
+							"path": [
+								"student",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Report",
+			"item": [
+				{
+					"name": "Issue Report",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"referenceNumber\": \"justcreatedthis\",\n    \"name\": \"Test1Gh\",\n    \"yearGroup\": \"2022\",\n    \"title\": \"Report of wrongly uploaded image\",\n    \"email\": \"test1@gmail.com\",\n    \"content\": \"Compliant for wrong phote uploaded for my card.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{orion-url}}/report",
+							"host": [
+								"{{orion-url}}"
+							],
+							"path": [
+								"report"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Reports",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{bearerToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{orion-url}}/report/64f787cf0c8660543aea987d",
+							"host": [
+								"{{orion-url}}"
+							],
+							"path": [
+								"report",
+								"64f787cf0c8660543aea987d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Close Report",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{bearerToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{orion-url}}/report/64f787cf0c8660543aea987/close",
+							"host": [
+								"{{orion-url}}"
+							],
+							"path": [
+								"report",
+								"64f787cf0c8660543aea987",
+								"close"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "token",
+			"value": "{{bearerToken}}"
+		}
+	]
+}
