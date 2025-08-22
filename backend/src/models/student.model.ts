@@ -24,7 +24,7 @@ export class Student {
 	quote!: string;
 
 	@Column({ type: "text" })
-	year!: string;
+	workspace!: string;
 
 	@CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
 	createdAt!: Date;

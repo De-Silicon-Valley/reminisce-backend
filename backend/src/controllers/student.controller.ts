@@ -11,7 +11,7 @@ export const createStudent = async (req: Request, res: Response) => {
 	try {
 		const student = await dataSource.getRepository(Student).create({
 			referenceNumber: req.body.referenceNumber,
-			year: req.body.year,
+			workspace: req.body.workspace,
 		});
 
 		if (!student) return res.status(400).send("Unable to create student");
@@ -47,9 +47,9 @@ export const getAllStudentData = async (req: Request, res: Response) => {
 	}
 };
 
-export const getAllStudentDataInYear = async (req: Request, res: Response) => {
+export const getAllStudentDataInworkspace = async (req: Request, res: Response) => {
 	try {
-		const student = await dataSource.getRepository(Student).find({ where: { year: req.params.year } });
+		const student = await dataSource.getRepository(Student).find({ where: { workspace: req.params.workspace } });
 		if (!student) return res.status(404).send("No student found");
 		return res.status(200).send(student);
 	} catch (error) {
@@ -85,12 +85,12 @@ export const updateStudentDataHavingTheReferenceNumber = async (req: Request, re
 	}
 };
 
-export const uplooadListOfStudentReferenceNumbersWithCorrespondingYear = async (
+export const uplooadListOfStudentReferenceNumbersWithCorrespondingworkspace = async (
 	req: Request,
 	res: Response
 ) => {
 	const payload = req.body as StudentReferenceNumberPayload;
-	const year = req.params.year;
+	const workspace = req.params.workspace;
 
 	try {
 		const alredyAddedReferenceNumbers: string[] = [];
@@ -108,7 +108,7 @@ export const uplooadListOfStudentReferenceNumbersWithCorrespondingYear = async (
 
 			const student = await dataSource.getRepository(Student).create({
 				referenceNumber: referenceNumber,
-				year: year,
+				workspace: workspace,
 			});
 
 			if (!student) unaddedReferenceNumbers.push(referenceNumber);

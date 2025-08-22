@@ -8,6 +8,9 @@ import { dataSource } from "./dataSource";
 import authRoutes from "./routes/auth.routes";
 import studentRoutes from "./routes/student.routes";
 import reportRoutes from "./routes/report.routes";
+import albumRoutes from "./routes/album.routes";
+import imageRoutes from "./routes/image.routes";
+
 
 dataSource
 	.initialize()
@@ -28,6 +31,8 @@ app.use(express.static(path.resolve(__dirname, "src/public")));
 app.use(authRoutes);
 app.use("/student", studentRoutes);
 app.use("/report", reportRoutes);
+app.use("/album", albumRoutes);
+app.use("/image", imageRoutes);
 
 app.get("/", (req: Request, res: Response) => {
 	res.send({

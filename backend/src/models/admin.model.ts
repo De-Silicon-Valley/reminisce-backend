@@ -14,6 +14,7 @@ export class Admin {
 	@Column("boolean", { default: true })
 	isActive: boolean = true;
 
+
 	@CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
 	createdAt!: Date;
 }

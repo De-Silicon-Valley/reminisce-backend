@@ -10,7 +10,7 @@ import {
 	validateStudentReferenceNumberPayloadSchema,
 	validateUpdateStudentSchema,
 	validateUpdateStudentSchemaByAdmin,
-	validateYearParameter,
+	validateworkspaceParameter,
 } from "../middleware/validateStudentSchema";
 import { validateObjectId } from "../middleware/validateObjectId";
 import { studentRecordAndReportLimiter } from "../middleware/rateLimit";
@@ -27,7 +27,7 @@ router.post(
 
 router.delete("/", [verifyJWTToken, verifyStudentReferenceNumber], controller.deleteStudentRecord);
 router.get("/", controller.getAllStudentData);
-router.get("/:year", validateYearParameter, controller.getAllStudentDataInYear);
+router.get("/:workspace", validateworkspaceParameter, controller.getAllStudentDataInworkspace);
 router.patch(
 	"/",
 	verifyStudentReferenceNumber,
@@ -36,11 +36,11 @@ router.patch(
 	controller.updateStudentDataHavingTheReferenceNumber
 );
 router.post(
-	"/:year",
+	"/:workspace",
 	verifyJWTToken,
-	validateYearParameter,
+	validateworkspaceParameter,
 	validateStudentReferenceNumberPayloadSchema,
-	controller.uplooadListOfStudentReferenceNumbersWithCorrespondingYear
+	controller.uplooadListOfStudentReferenceNumbersWithCorrespondingworkspace
 );
 router.patch(
 	"/admin/:id",

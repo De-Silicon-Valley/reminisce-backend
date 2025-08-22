@@ -3,7 +3,7 @@ import Joi from "joi";
 
 const createStudentSchema = Joi.object({
 	referenceNumber: Joi.string().required(),
-	year: Joi.string().required(),
+	workspace: Joi.string().required(),
 });
 
 export const validateCreateStudentSchema = (req: Request, res: Response, next: NextFunction) => {
@@ -26,11 +26,11 @@ export const validateUpdateStudentSchema = (req: Request, res: Response, next: N
 	next();
 };
 
-// Define a Joi schema for validating the year parameter
-const yearParamSchema = Joi.number().integer().min(2022).required();
+// Define a Joi schema for validating the workspace parameter
+const workspaceParamSchema = Joi.number().integer().min(2022).required();
 
-export const validateYearParameter = (req: Request, res: Response, next: NextFunction) => {
-	const { error } = yearParamSchema.validate(req.params.year);
+export const validateworkspaceParameter = (req: Request, res: Response, next: NextFunction) => {
+	const { error } = workspaceParamSchema.validate(req.params.workspace);
 	if (error) return res.status(400).json({ msg: "Invalid payload in the request parameters" });
 	next();
 };

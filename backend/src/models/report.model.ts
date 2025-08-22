@@ -9,7 +9,7 @@ export class Report {
 	title!: string;
 
 	@Column({ type: "text" })
-	yearGroup!: string;
+	workspaceName!: string;
 
 	@Column({ type: "text" })
 	content!: string;

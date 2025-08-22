@@ -6,7 +6,7 @@ import { ObjectId } from "mongodb";
 export const createReport = async (req: Request, res: Response) => {
 	const report = await dataSource.getRepository(Report).create({
 		title: req.body.title,
-		yearGroup: req.body.yearGroup,
+		workspaceName: req.body.workspaceName,
 		studentEmail: req.body.email,
 		studentName: req.body.name,
 		content: req.body.content,
