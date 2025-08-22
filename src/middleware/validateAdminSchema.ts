@@ -8,6 +8,6 @@ const loginSchemaForAdmin = Joi.object({
 
 export const validateAdminLoginAndSignUpSchema = (req: Request, res: Response, next: NextFunction) => {
 	const { error } = loginSchemaForAdmin.validate(req.body);
-	if (error) return res.status(400).json({ msg: "Invalid payload in the request parameters" });
+	if (error) return res.status(400).json({ msg: "Admin signup: Invalid payload in the request parameters" });
 	next();
 };
