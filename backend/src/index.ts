@@ -10,6 +10,7 @@ import studentRoutes from "./routes/student.routes";
 import reportRoutes from "./routes/report.routes";
 import albumRoutes from "./routes/album.routes";
 import imageRoutes from "./routes/image.routes";
+import eventsRoutes from "./routes/events.route";
 
 
 dataSource
@@ -33,6 +34,7 @@ app.use("/student", studentRoutes);
 app.use("/report", reportRoutes);
 app.use("/album", albumRoutes);
 app.use("/image", imageRoutes);
+app.use("/events", eventsRoutes);
 
 app.get("/", (req: Request, res: Response) => {
 	res.send({
