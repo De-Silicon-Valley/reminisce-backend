@@ -11,7 +11,6 @@ import reportRoutes from "./routes/report.routes";
 import albumRoutes from "./routes/album.routes";
 import imageRoutes from "./routes/image.routes";
 
-
 dataSource
 	.initialize()
 	.then(() => {
