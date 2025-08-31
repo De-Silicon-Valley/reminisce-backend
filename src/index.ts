@@ -10,7 +10,12 @@ import studentRoutes from "./routes/student.routes";
 import reportRoutes from "./routes/report.routes";
 import albumRoutes from "./routes/album.routes";
 import imageRoutes from "./routes/image.routes";
+<<<<<<< HEAD:backend/src/index.ts
+import eventsRoutes from "./routes/events.route";
+
+=======
 import departmentRoutes from "./routes/department.routes";
+>>>>>>> 81764819a4b316614389a8e11f6f95a9e8d2e09a:src/index.ts
 
 dataSource
   .initialize()
@@ -33,7 +38,11 @@ app.use("/student", studentRoutes);
 app.use("/report", reportRoutes);
 app.use("/album", albumRoutes);
 app.use("/image", imageRoutes);
+<<<<<<< HEAD:backend/src/index.ts
+app.use("/events", eventsRoutes);
+=======
 app.use("/department", departmentRoutes);
+>>>>>>> 81764819a4b316614389a8e11f6f95a9e8d2e09a:src/index.ts
 
 app.get("/", (req: Request, res: Response) => {
   res.send({
