@@ -4,7 +4,7 @@
   "description": "backend of the digital phonebook",
   "main": "src/index.ts",
   "scripts": {
-    "start": "node src/index",
+    "start": "node dist/index.js",
     "build": "npx tsc",
     "test": "jest --passWithNoTests",
     "typeorm": "typeorm-ts-node-commonjs",
