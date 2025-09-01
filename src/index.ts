@@ -10,16 +10,19 @@ import studentRoutes from "./routes/student.routes";
 import reportRoutes from "./routes/report.routes";
 import albumRoutes from "./routes/album.routes";
 import imageRoutes from "./routes/image.routes";
+import eventsRoutes from "./routes/events.route";
+
+import departmentRoutes from "./routes/department.routes";
 
 dataSource
-	.initialize()
-	.then(() => {
-		console.log("[+] Data Source initialized.");
-		// console.log(process.env.DB_URL);
-	})
-	.catch((error) => {
-		console.error("Error during Data Source initialization:\n", error);
-	});
+  .initialize()
+  .then(() => {
+    console.log("[+] Data Source initialized.");
+    // console.log(process.env.DB_URL);
+  })
+  .catch((error) => {
+    console.error("Error during Data Source initialization:\n", error);
+  });
 
 const app = express();
 app.use(cors());
@@ -32,15 +35,17 @@ app.use("/student", studentRoutes);
 app.use("/report", reportRoutes);
 app.use("/album", albumRoutes);
 app.use("/image", imageRoutes);
+app.use("/events", eventsRoutes);
+app.use("/department", departmentRoutes);
 
 app.get("/", (req: Request, res: Response) => {
-	res.send({
-		msg: "Welcome to the digital phonebook!!",
-	});
+  res.send({
+    msg: "Welcome to the digital phonebook!!",
+  });
 });
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-	console.log(`---- App is listening on port ${PORT}`);
+  console.log(`---- App is listening on port ${PORT}`);
 });
