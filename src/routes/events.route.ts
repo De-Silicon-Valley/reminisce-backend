@@ -9,12 +9,12 @@ const eventController = new EventController();
 router.use(verifyJWTToken);
 
 
-router.get('/events/stats', eventController.getEventStats);
-router.get('/events', eventController.getAllEvents);
-router.get('/events/:id', validateEventIdParam, eventController.getEventById);
-router.post('/events', validateCreateEventSchema, eventController.createEvent);
-router.put('/events/:id', validateEventIdParam, validateUpdateEventSchema, eventController.updateEvent);
-router.delete('/events/:id', validateEventIdParam, eventController.deleteEvent);
+router.get('/stats', eventController.getEventStats);
+router.get('/', eventController.getAllEvents);
+router.get('/:id', validateEventIdParam, eventController.getEventById);
+router.post('/', validateCreateEventSchema, eventController.createEvent);
+router.put('/:id', validateEventIdParam, validateUpdateEventSchema, eventController.updateEvent);
+router.delete('/:id', validateEventIdParam, eventController.deleteEvent);
 
 export default router;
 
