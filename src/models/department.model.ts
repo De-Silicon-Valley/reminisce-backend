@@ -17,7 +17,6 @@ export class Department {
   @Column({ type: "text" })
   code!: string;
 
-  @Column({ type: "text" })
   @Column({ type: "text", unique: true })
   slug!: string;
 
