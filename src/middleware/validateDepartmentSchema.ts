@@ -4,7 +4,7 @@ import Joi from "joi";
 const createDepartmentSchema = Joi.object({
   name: Joi.string().required(),
   code: Joi.string().required(),
-  slug: Joi.string().optional(),
+  slug: Joi.string().required(),
 });
 
 export const validateCreateDepartmentSchema = (

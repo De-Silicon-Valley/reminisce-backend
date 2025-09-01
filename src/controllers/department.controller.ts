@@ -2,16 +2,19 @@ import { Request, Response } from "express";
 import { dataSource } from "../dataSource";
 import { Department } from "../models/department.model";
 
+// import { Request, Response } from "express";
+// import { dataSource } from "../dataSource";
+// import { Department } from "../models/department.model";
+
 export const createDepartment = async (req: Request, res: Response) => {
   try {
-    // req.userId is set by verifyJWTToken middleware
     const adminId = (req as unknown as { userId: string }).userId;
 
-    // normalize and ensure slug uniqueness
-    const rawSlug = String(req.body.slug || "")
+    // generate slug from name
+    const rawSlug = req.body.name
       .trim()
-      .toLowerCase();
-    if (!rawSlug) return res.status(400).send({ msg: "Invalid slug." });
+      .toLowerCase()
+      .replace(/\s+/g, "-"); // "Accounting Department" → "accounting-department"
 
     const existing = await dataSource
       .getRepository(Department)
@@ -21,26 +24,24 @@ export const createDepartment = async (req: Request, res: Response) => {
       return res.status(409).send({ msg: "Department slug already exists." });
     }
 
-    const dept = await dataSource.getRepository(Department).create({
+    const dept = dataSource.getRepository(Department).create({
       name: req.body.name,
       code: req.body.code,
       slug: rawSlug,
-      adminId: adminId,
+      adminId,
     });
-
-    if (!dept)
-      return res.status(400).send({ msg: "Unable to create department." });
 
     const saved = await dataSource.getRepository(Department).save(dept);
 
-    // return the created slug to the caller
-    return res
-      .status(201)
-      .send({ msg: "Department created successfully.", slug: saved.slug });
+    return res.status(201).send({
+      msg: "Department created successfully.",
+      slug: saved.slug,
+    });
   } catch (error) {
-    return res.status(500).send({ msg: error });
+    return res.status(500).send({ msg: error instanceof Error ? error.message : error });
   }
 };
+
 
 export const listDepartments = async (req: Request, res: Response) => {
   try {
