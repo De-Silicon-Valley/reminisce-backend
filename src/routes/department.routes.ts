@@ -18,4 +18,7 @@ router.get("/", controller.listDepartments);
 // get by slug
 router.get("/:slug", controller.getDepartmentBySlug);
 
+// get department statistics (requires admin authentication)
+router.get("/:slug/statistics", [verifyJWTToken], controller.getDepartmentStatistics);
+
 export default router;
