@@ -4,35 +4,68 @@ import { Album } from "../models/album.model";
 import { Admin } from "typeorm";
 
 export const createAlbum = async (req: Request, res: Response) => {
-    const album = await dataSource.getRepository(Album).create({
-        albumName: req.body.albumName,
-        workspaceName: req.body.workspaceName,
-    });
+    try {
+        console.log('Received album creation request:', req.body);
+        console.log('Admin ID from token:', (req as any).userId);
+        
+        const { albumName, workspaceName, department } = req.body;
+        
+        if (!albumName || (!workspaceName && !department)) {
+            return res.status(400).json({ msg: "Album name and workspace/department are required" });
+        }
 
-    if (!album) {
-        return res.status(400).send({ msg: "Unable to create album." });
+        // Use department if provided, otherwise fall back to workspaceName
+        const finalWorkspaceName = department || workspaceName;
+        const adminId = (req as any).userId;
+
+        const album = await dataSource.getRepository(Album).create({
+            albumName,
+            workspaceName: finalWorkspaceName,
+        });
+
+        if (!album) {
+            return res.status(400).json({ msg: "Unable to create album." });
+        }
+
+        const savedAlbum = await dataSource.getRepository(Album).save(album);
+        console.log('Album created successfully:', savedAlbum);
+
+        return res.status(201).json({
+            success: true,
+            msg: "Album created successfully.",
+            data: savedAlbum
+        });
+    } catch (error) {
+        console.error('Error creating album:', error);
+        return res.status(500).json({
+            success: false,
+            msg: "Failed to create album",
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
     }
-
-    await dataSource.getRepository(Album).save(album);
-
-    return res.status(201).send({
-        msg: "Album created successfully.",
-    });
 };
 
 
 export const getAlbums = async (req: Request, res: Response) => {
-    try{
+    try {
         console.log("Fetching albums for workspace:", req.params.workspaceName);
-        const albums = await dataSource.getRepository(Album).find({where:{workspaceName:req.params.workspaceName}});
         
-        if(!albums){
-            return res.status(404).send("No albums found");
-        }
-        return res.status(200).send(albums);
+        const albums = await dataSource.getRepository(Album).find({
+            where: { workspaceName: req.params.workspaceName }
+        });
+        
+        console.log(`Found ${albums.length} albums for workspace: ${req.params.workspaceName}`);
+        
+        return res.status(200).json({
+            success: true,
+            data: albums
+        });
     } catch (error) {
-        return res.status(500).send({
-            msg: error,
+        console.error('Error fetching albums:', error);
+        return res.status(500).json({
+            success: false,
+            msg: "Failed to fetch albums",
+            error: error instanceof Error ? error.message : 'Unknown error'
         });
     }
 };
@@ -40,14 +73,26 @@ export const getAlbums = async (req: Request, res: Response) => {
 
 export const deleteAlbum = async (req: Request, res: Response) => {
     try {
+        
         const result = await dataSource.getRepository(Album).delete(req.params.id);
+        
         if (result.affected === 0) {
-            return res.status(404).send("Album not found");
+            return res.status(404).json({
+                success: false,
+                msg: "Album not found"
+            });
         }
-        return res.status(200).send("Album deleted successfully");
+        
+        console.log('Album deleted successfully');
+        return res.status(200).json({
+            success: true,
+            msg: "Album deleted successfully"
+        });
     } catch (error) {
-        return res.status(500).send({
-            msg: error,
+        return res.status(500).json({
+            success: false,
+            msg: "Failed to delete album",
+            error: error instanceof Error ? error.message : 'Unknown error'
         });
     }
 };

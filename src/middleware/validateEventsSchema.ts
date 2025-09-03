@@ -11,17 +11,13 @@ const createEventSchema = Joi.object({
 });
 
 export const validateCreateEventSchema = (req: Request, res: Response, next: NextFunction) => {
-  console.log('Validating event schema with body:', req.body);
-  console.log('Event date from request:', req.body.eventDate);
-  console.log('Event date type:', typeof req.body.eventDate);
+
   
   const { error } = createEventSchema.validate(req.body);
   if (error) {
-    console.error('Validation error:', error.details);
-    console.error('Full validation error:', error);
+   
     return res.status(400).json({ msg: "Invalid payload in the request body", details: error.details });
   }
-  console.log('Event validation passed');
   next();
 };
 
