@@ -14,6 +14,7 @@ router.post("/", [verifyStudentReferenceNumber, studentRecordAndReportLimiter], 
 router.get("/", verifyJWTToken, controller.getReports);
 router.get("/:id", verifyJWTToken, controller.getReports); // get report by id
 
-router.patch("/:id/close", [verifyJWTToken, validateObjectId, validateReport], controller.closeReport);
+router.patch("/:id/toggle-status", [verifyJWTToken, validateObjectId], controller.toggleReportStatus);
+router.delete("/:id", [verifyJWTToken, validateObjectId, validateReport], controller.deleteReport);
 
 export default router;

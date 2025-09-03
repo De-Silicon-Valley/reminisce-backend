@@ -20,8 +20,11 @@ export class Report {
 	@Column({ type: "text" })
 	studentEmail!: string;
 
-	@Column("boolean", { default: true })
-	isActive: boolean = true;
+	@Column({ type: "text" })
+	referenceNumber!: string;
+
+	@Column("boolean", { default: false })
+	resolved: boolean = false;
 
 	@CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
 	createdAt!: Date;

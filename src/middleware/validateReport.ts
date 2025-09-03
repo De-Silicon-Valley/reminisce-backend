@@ -9,12 +9,13 @@ export const validateReport = async (req: Request, res: Response, next: NextFunc
 	});
 
 	if (!validReport) {
-		return res.status(404).send({ msg: "Report does not exist." });
+		return res.status(404).json({ 
+			success: false,
+			msg: "Report does not exist." 
+		});
 	}
 
-	if (!validReport.isActive) {
-		return res.status(400).send({ msg: "Report has been closed" });
-	}
-
+	// Store the report in the request for use in controllers
+	(req as any).report = validReport;
 	next();
 };
