@@ -27,7 +27,7 @@ export const validateUpdateStudentSchema = (req: Request, res: Response, next: N
 };
 
 // Define a Joi schema for validating the workspace parameter
-const workspaceParamSchema = Joi.number().integer().min(2022).required();
+const workspaceParamSchema = Joi.string().required();
 
 export const validateworkspaceParameter = (req: Request, res: Response, next: NextFunction) => {
 	const { error } = workspaceParamSchema.validate(req.params.workspace);
