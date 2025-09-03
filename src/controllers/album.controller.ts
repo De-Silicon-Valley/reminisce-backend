@@ -54,7 +54,6 @@ export const getAlbums = async (req: Request, res: Response) => {
             where: { workspaceName: req.params.workspaceName }
         });
         
-        console.log(`Found ${albums.length} albums for workspace: ${req.params.workspaceName}`);
         
         return res.status(200).json({
             success: true,

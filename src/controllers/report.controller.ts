@@ -79,9 +79,7 @@ export const getReports = async (req: Request, res: Response) => {
 			};
 		}
 
-		console.log('Query condition:', condition);
 		const reports = await dataSource.getRepository(Report).find(condition);
-		console.log(`Found ${reports.length} reports`);
 
 		return res.status(200).json({
 			success: true,
