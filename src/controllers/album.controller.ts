@@ -7,16 +7,25 @@ export const createAlbum = async (req: Request, res: Response) => {
     try {
         console.log('Received album creation request:', req.body);
         console.log('Admin ID from token:', (req as any).userId);
+        console.log('Request headers:', req.headers);
         
         const { albumName, workspaceName, department } = req.body;
         
+        console.log('Extracted fields:', { albumName, workspaceName, department });
+        
         if (!albumName || (!workspaceName && !department)) {
-            return res.status(400).json({ msg: "Album name and workspace/department are required" });
+            console.log('Validation failed: missing required fields');
+            return res.status(400).json({ 
+                msg: "Album name and workspace/department are required",
+                received: { albumName, workspaceName, department }
+            });
         }
 
         // Use department if provided, otherwise fall back to workspaceName
         const finalWorkspaceName = department || workspaceName;
         const adminId = (req as any).userId;
+        
+        console.log('Final workspace name:', finalWorkspaceName);
 
         const album = await dataSource.getRepository(Album).create({
             albumName,
@@ -24,6 +33,7 @@ export const createAlbum = async (req: Request, res: Response) => {
         });
 
         if (!album) {
+            console.log('Failed to create album entity');
             return res.status(400).json({ msg: "Unable to create album." });
         }
 

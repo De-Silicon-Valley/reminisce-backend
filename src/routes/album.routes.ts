@@ -5,11 +5,11 @@ import { verifyJWTToken } from "../middleware/verifyToken";
 
 const router = Router();
 
-// Protect all album routes with JWT authentication
-router.use(verifyJWTToken);
-
-router.post("/createalbum", validateCreateAlbumSchema, controller.createAlbum);
+// GET routes - no token required
 router.get("/getalbums/:workspaceName", controller.getAlbums);
-router.delete("/deletealbum/:id", controller.deleteAlbum);
+
+// POST, DELETE routes - token required
+router.post("/createalbum", verifyJWTToken, validateCreateAlbumSchema, controller.createAlbum);
+router.delete("/deletealbum/:id", verifyJWTToken, controller.deleteAlbum);
 
 export default router;
