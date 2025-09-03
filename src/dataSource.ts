@@ -5,6 +5,7 @@ import { Event } from "./models/events.model";
 import { Album } from "./models/album.model";
 import { Image } from "./models/image.model";
 import { Report } from "./models/report.model";
+import { Admin } from "./models/admin.model";
 
 export const dataSource = new DataSource({
 	type: "mongodb",
@@ -13,7 +14,7 @@ export const dataSource = new DataSource({
 	// useNewUrlParser: true,
 	synchronize: true,
 	logging: true,
-	entities: [Department, Student, Event, Album, Image, Report],
+	entities: [Department, Student, Event, Album, Image, Report, Admin],
 	// port: Number(process.env.DB_PORT),
 	database: "Reminisce",
 });
