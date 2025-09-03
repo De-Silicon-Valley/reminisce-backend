@@ -11,6 +11,7 @@ router.use(verifyJWTToken);
 
 router.get('/stats', eventController.getEventStats);
 router.get('/', eventController.getAllEvents);
+router.get('/department/:department', eventController.getEventsByDepartment);
 router.get('/:id', validateEventIdParam, eventController.getEventById);
 router.post('/', validateCreateEventSchema, eventController.createEvent);
 router.put('/:id', validateEventIdParam, validateUpdateEventSchema, eventController.updateEvent);

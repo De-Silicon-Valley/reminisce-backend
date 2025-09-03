@@ -40,6 +40,7 @@ export class EventController {
 
       const { 
         status, 
+        department,
         page = 1, 
         limit = 10, 
         sortBy = 'eventDate', 
@@ -47,6 +48,65 @@ export class EventController {
       } = req.query;
 
       const query: any = {};
+      if (status && ['upcoming', 'ongoing', 'completed', 'cancelled'].includes(status as string)) {
+        query.status = status;
+      }
+      
+      // Filter by department if provided
+      if (department) {
+        query.department = department;
+      }
+
+      const skip = (Number(page) - 1) * Number(limit);
+      const sortOptions: any = {};
+      sortOptions[sortBy as string] = sortOrder === 'desc' ? -1 : 1;
+
+      const [events, total] = await Promise.all([
+        this.eventRepository.find({
+          where: query,
+          skip,
+          take: Number(limit),
+          order: sortOptions
+        }),
+        this.eventRepository.count(query)
+      ]);
+
+      res.status(200).json({
+        success: true,
+        data: {
+          events,
+          pagination: {
+            current: Number(page),
+            pages: Math.ceil(total / Number(limit)),
+            total,
+            limit: Number(limit)
+          }
+        }
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to fetch events',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  };
+
+  // GET /api/admin/events/department/:department
+  getEventsByDepartment = async (req: Request, res: Response) => {
+    try {
+      await this.updateEventStatuses();
+      
+      const { department } = req.params;
+      const { 
+        status, 
+        page = 1, 
+        limit = 10, 
+        sortBy = 'eventDate', 
+        sortOrder = 'asc' 
+      } = req.query;
+
+      const query: any = { department };
       if (status && ['upcoming', 'ongoing', 'completed', 'cancelled'].includes(status as string)) {
         query.status = status;
       }
@@ -80,7 +140,7 @@ export class EventController {
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch events',
+        message: 'Failed to fetch events by department',
         error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
@@ -134,19 +194,36 @@ export class EventController {
   // POST /api/admin/events
   createEvent = async (req: Request, res: Response) => {
     try {
+   
       const { title, description, venue, eventDate } = req.body;
 
-  const event = new Event();
-  event.title = title;
-  event.description = description;
-  event.venue = venue;
-  event.eventDate = new Date(eventDate);
-  // Use admin info from req.admin (set by verifyJWTToken middleware)
-  const admin = (req as any).admin;
-  event.createdBy = admin ? admin.id : undefined;
-  event.status = 'upcoming';
-  event.createdAt = new Date();
-  event.updatedAt = new Date();
+      const event = new Event();
+      event.title = title;
+      event.description = description;
+      event.venue = venue;
+      event.eventDate = new Date(eventDate);
+      
+      // Use admin info from req.userId (set by verifyJWTToken middleware)
+      const adminId = (req as any).userId;
+      event.createdBy = adminId;
+      
+      // Get department from request body (frontend will send this)
+      event.department = req.body.department || 'general';
+      
+      // Auto-set status based on event date
+      const now = new Date();
+      const eventDateObj = new Date(eventDate);
+      
+      if (eventDateObj < now) {
+        event.status = 'completed';
+      } else if (eventDateObj.getTime() - now.getTime() <= 24 * 60 * 60 * 1000) { // Within 24 hours
+        event.status = 'ongoing';
+      } else {
+        event.status = 'upcoming';
+      }
+      
+      event.createdAt = new Date();
+      event.updatedAt = new Date();
 
       const savedEvent = await this.eventRepository.save(event);
 
@@ -156,6 +233,7 @@ export class EventController {
         data: savedEvent
       });
     } catch (error) {
+      console.error('Error creating event:', error);
       res.status(500).json({
         success: false,
         message: 'Failed to create event',

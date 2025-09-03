@@ -1,6 +1,5 @@
 import { Entity, Column, ObjectIdColumn, ObjectId, CreateDateColumn } from "typeorm";
 
-
 @Entity()
 export class Event {
 	@ObjectIdColumn()
@@ -28,15 +27,12 @@ export class Event {
     @Column({ type: "text" })
     createdBy!: string;
 
-    @Column({ 
-        type: "date",
-        default: () => "CURRENT_TIMESTAMP"
-    })
+    @Column({ type: "text" })
+    department!: string;
+
+    	@CreateDateColumn()
     createdAt!: Date;
 
-    @Column({ 
-        type: "date",
-        default: () => "CURRENT_TIMESTAMP"
-    })
+	@CreateDateColumn()
     updatedAt!: Date;
 }
