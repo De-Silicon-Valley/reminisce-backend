@@ -1,5 +1,9 @@
 import { DataSource } from "typeorm";
-import path from "path";
+import { Department } from "./models/department.model";
+import { Student } from "./models/student.model";
+import { Event } from "./models/events.model";
+import { Album } from "./models/album.model";
+import { Image } from "./models/image.model";
 
 export const dataSource = new DataSource({
 	type: "mongodb",
@@ -8,7 +12,7 @@ export const dataSource = new DataSource({
 	// useNewUrlParser: true,
 	synchronize: true,
 	logging: true,
-	entities: [path.join(__dirname, "models", "*.{ts,js}")],
+	entities: [Department, Student, Event, Album, Image],
 	// port: Number(process.env.DB_PORT),
 	database: "Reminisce",
 });
