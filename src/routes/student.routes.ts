@@ -31,6 +31,7 @@ router.get("/:workspace", validateworkspaceParameter, controller.getAllStudentDa
 
 // Public routes for client-side access using workspace ID
 router.post("/public", controller.getStudentsByWorkspace);
+router.put("/update-profile", controller.updateStudentProfile);
 router.patch(
 	"/",
 	verifyStudentReferenceNumber,

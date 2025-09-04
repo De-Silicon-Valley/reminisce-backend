@@ -273,3 +273,85 @@ export const updateStudentDataByAdmin = async (req: Request, res: Response) => {
 		});
 	}
 };
+
+// PUT /api/student/update-profile - Update student profile by reference number
+export const updateStudentProfile = async (req: Request, res: Response) => {
+    try {
+        const { referenceNumber, departmentSlug, name, nickname, image, phoneNumber, quote } = req.body;
+        
+        if (!referenceNumber || !departmentSlug) {
+            return res.status(400).json({ 
+                success: false, 
+                msg: "Reference number and department slug are required" 
+            });
+        }
+
+        if (!name || !nickname || !image || !phoneNumber || !quote) {
+            return res.status(400).json({ 
+                success: false, 
+                msg: "All profile fields are required: name, nickname, image, phoneNumber, quote" 
+            });
+        }
+
+        // Get department by slug to get workspace
+        const { Department } = await import("../models/department.model");
+        const department = await dataSource.getRepository(Department).findOne({ 
+            where: { slug: departmentSlug } 
+        });
+        
+        if (!department) {
+            return res.status(404).json({ 
+                success: false, 
+                msg: "Department not found" 
+            });
+        }
+
+        // Find student by reference number and workspace
+        let student = await dataSource.getRepository(Student).findOne({ 
+            where: { 
+                referenceNumber: referenceNumber,
+                workspace: department._id.toString()
+            } 
+        });
+
+        // Fallback: try to find by departmentId as ObjectId
+        if (!student) {
+            student = await dataSource.getRepository(Student).findOne({ 
+                where: { 
+                    referenceNumber: referenceNumber,
+                    departmentId: department._id
+                } 
+            });
+        }
+
+        if (!student) {
+            return res.status(404).json({ 
+                success: false, 
+                msg: "Student with this reference number not found in this department" 
+            });
+        }
+
+        // Update student profile
+        student.name = name;
+        student.nickname = nickname;
+        student.image = image;
+        student.phoneNumber = phoneNumber;
+        student.quote = quote;
+        student.updatedAt = new Date();
+
+        await dataSource.getRepository(Student).save(student);
+
+        return res.status(200).json({ 
+            success: true, 
+            msg: "Profile updated successfully",
+            data: student
+        });
+
+    } catch (error) {
+        return res.status(500).json({ 
+            success: false, 
+            msg: "Failed to update profile", 
+            error: error instanceof Error ? error.message : 'Unknown error' 
+        });
+    }
+};
