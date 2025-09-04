@@ -1,4 +1,4 @@
-import { Entity, Column, ObjectIdColumn, ObjectId, CreateDateColumn } from "typeorm";
+import { Entity, Column, ObjectIdColumn, ObjectId, CreateDateColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Student {
@@ -26,6 +26,12 @@ export class Student {
 	@Column({ type: "text" })
 	workspace!: string;
 
-	@CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
+	@Column({ type: "text" })
+	departmentId!: string;
+
+	@CreateDateColumn()
 	createdAt!: Date;
+
+	@UpdateDateColumn()
+	updatedAt!: Date;
 }

@@ -1,4 +1,4 @@
-import { Entity, Column, ObjectIdColumn, ObjectId, CreateDateColumn } from "typeorm";
+import { Entity, Column, ObjectIdColumn, ObjectId, CreateDateColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Report {
@@ -7,9 +7,6 @@ export class Report {
 
 	@Column({ type: "text" })
 	title!: string;
-
-	@Column({ type: "text" })
-	workspaceName!: string;
 
 	@Column({ type: "text" })
 	content!: string;
@@ -23,9 +20,15 @@ export class Report {
 	@Column({ type: "text" })
 	referenceNumber!: string;
 
+	@Column({ type: "text" })
+	departmentId!: string;
+
 	@Column("boolean", { default: false })
 	resolved: boolean = false;
 
-	@CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
+	@CreateDateColumn()
 	createdAt!: Date;
+
+	@UpdateDateColumn()
+	updatedAt!: Date;
 }

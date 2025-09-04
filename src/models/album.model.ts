@@ -1,4 +1,4 @@
-import { Entity, Column, ObjectIdColumn, ObjectId, CreateDateColumn } from "typeorm";
+import { Entity, Column, ObjectIdColumn, ObjectId, CreateDateColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Album{
@@ -11,9 +11,15 @@ export class Album{
     @Column({ type: "text" })
     workspaceName!: string;
 
+    @Column({ type: "text" })
+    departmentId!: string;
+
     @Column("boolean", { default: true })
     isActive: boolean = true;
 
-    @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
+    @CreateDateColumn()
     createdAt!: Date;
+
+    @UpdateDateColumn()
+    updatedAt!: Date;
 }

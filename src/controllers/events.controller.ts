@@ -54,7 +54,7 @@ export class EventController {
       
       // Filter by department if provided
       if (department) {
-        query.department = department;
+        query.departmentId = department;
       }
 
       const skip = (Number(page) - 1) * Number(limit);
@@ -106,7 +106,7 @@ export class EventController {
         sortOrder = 'asc' 
       } = req.query;
 
-      const query: any = { department };
+      const query: any = { departmentId: department };
       if (status && ['upcoming', 'ongoing', 'completed', 'cancelled'].includes(status as string)) {
         query.status = status;
       }
@@ -203,12 +203,11 @@ export class EventController {
       event.venue = venue;
       event.eventDate = new Date(eventDate);
       
-      // Use admin info from req.userId (set by verifyJWTToken middleware)
+      // Use admin info from req.userId and departmentId (set by verifyJWTToken middleware)
       const adminId = (req as any).userId;
+      const departmentId = (req as any).departmentId;
       event.createdBy = adminId;
-      
-      // Get department from request body (frontend will send this)
-      event.department = req.body.department || 'general';
+      event.departmentId = departmentId; // This is now the department ObjectId as string
       
       // Auto-set status based on event date
       const now = new Date();

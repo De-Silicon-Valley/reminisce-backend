@@ -7,8 +7,9 @@ const createEventSchema = Joi.object({
   description: Joi.string().trim().min(10).max(1000).required(),
   venue: Joi.string().trim().min(3).max(255).required(),
   eventDate: Joi.date().iso().required(),
-  department: Joi.string().trim().min(1).required()
-});
+  department: Joi.string().trim().min(1).optional(),
+  departmentId: Joi.string().trim().min(1).optional()
+}).or('department', 'departmentId'); // Require at least one of department or departmentId
 
 export const validateCreateEventSchema = (req: Request, res: Response, next: NextFunction) => {
 
@@ -28,7 +29,8 @@ const updateEventSchema = Joi.object({
   venue: Joi.string().trim().min(3).max(255).optional(),
   eventDate: Joi.date().iso().optional(),
   status: Joi.string().valid('upcoming', 'ongoing', 'completed', 'cancelled').optional(),
-  department: Joi.string().trim().min(1).optional()
+  department: Joi.string().trim().min(1).optional(),
+  departmentId: Joi.string().trim().min(1).optional()
 });
 
 export const validateUpdateEventSchema = (req: Request, res: Response, next: NextFunction) => {

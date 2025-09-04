@@ -6,11 +6,12 @@ const createAlbumSchema = Joi.object({
 	albumName: Joi.string().required(),
 	workspaceName: Joi.string().optional(),
 	department: Joi.string().optional(),
+	departmentId: Joi.string().optional(),
 }).custom((value, helpers) => {
-	// Custom validation to ensure at least one of workspaceName or department is provided
-	if (!value.workspaceName && !value.department) {
+	// Custom validation to ensure at least one of workspaceName, department, or departmentId is provided
+	if (!value.workspaceName && !value.department && !value.departmentId) {
 		return helpers.error('any.invalid', { 
-			message: 'At least one of workspaceName or department is required' 
+			message: 'At least one of workspaceName, department, or departmentId is required' 
 		});
 	}
 	return value;
@@ -28,7 +29,8 @@ export const validateCreateAlbumSchema = (req: Request, res: Response, next: Nex
 				albumName: 'string (required)',
 				workspaceName: 'string (optional)',
 				department: 'string (optional)',
-				note: 'At least one of workspaceName or department is required'
+				departmentId: 'string (optional)',
+				note: 'At least one of workspaceName, department, or departmentId is required'
 			}
 		});
 	}
@@ -41,6 +43,7 @@ const updateAlbumSchema = Joi.object({
 	albumName: Joi.string().optional(),
 	workspaceName: Joi.string().optional(),
 	department: Joi.string().optional(),
+	departmentId: Joi.string().optional(),
 });
 
 export const validateUpdateAlbumSchema = (req: Request, res: Response, next: NextFunction) => {

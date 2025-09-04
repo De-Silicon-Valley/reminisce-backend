@@ -1,4 +1,4 @@
-import { Entity, Column, ObjectIdColumn, ObjectId, CreateDateColumn } from "typeorm";
+import { Entity, Column, ObjectIdColumn, ObjectId, CreateDateColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Event {
@@ -28,11 +28,11 @@ export class Event {
     createdBy!: string;
 
     @Column({ type: "text" })
-    department!: string;
-
-    	@CreateDateColumn()
-    createdAt!: Date;
+    departmentId!: string;
 
 	@CreateDateColumn()
+    createdAt!: Date;
+
+	@UpdateDateColumn()
     updatedAt!: Date;
 }

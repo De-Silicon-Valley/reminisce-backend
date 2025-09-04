@@ -4,6 +4,7 @@ import {
   ObjectIdColumn,
   ObjectId,
   CreateDateColumn,
+  UpdateDateColumn,
 } from "typeorm";
 
 @Entity()
@@ -24,9 +25,9 @@ export class Department {
   @Column({ type: "text" })
   adminId!: string;
 
-  @CreateDateColumn({
-    type: "timestamp",
-    default: () => "CURRENT_TIMESTAMP(6)",
-  })
+  @CreateDateColumn()
   createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
 }

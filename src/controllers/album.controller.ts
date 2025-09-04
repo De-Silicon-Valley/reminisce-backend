@@ -9,27 +9,31 @@ export const createAlbum = async (req: Request, res: Response) => {
         console.log('Admin ID from token:', (req as any).userId);
         console.log('Request headers:', req.headers);
         
-        const { albumName, workspaceName, department } = req.body;
+        const { albumName, workspaceName, department, departmentId } = req.body;
         
-        console.log('Extracted fields:', { albumName, workspaceName, department });
+        console.log('Extracted fields:', { albumName, workspaceName, department, departmentId });
         
-        if (!albumName || (!workspaceName && !department)) {
+        if (!albumName || (!workspaceName && !department && !departmentId)) {
             console.log('Validation failed: missing required fields');
             return res.status(400).json({ 
-                msg: "Album name and workspace/department are required",
-                received: { albumName, workspaceName, department }
+                msg: "Album name and department information are required",
+                received: { albumName, workspaceName, department, departmentId }
             });
         }
 
-        // Use department if provided, otherwise fall back to workspaceName
-        const finalWorkspaceName = department || workspaceName;
+        // Use departmentId from JWT token (set by verifyJWTToken middleware)
+        const adminDepartmentId = (req as any).departmentId; // This is now the department ObjectId as string
+        const finalDepartmentId = adminDepartmentId;
+        const finalWorkspaceName = adminDepartmentId;
         const adminId = (req as any).userId;
         
+        console.log('Final department ID:', finalDepartmentId);
         console.log('Final workspace name:', finalWorkspaceName);
 
         const album = await dataSource.getRepository(Album).create({
             albumName,
             workspaceName: finalWorkspaceName,
+            departmentId: finalDepartmentId,
         });
 
         if (!album) {
@@ -60,10 +64,17 @@ export const getAlbums = async (req: Request, res: Response) => {
     try {
         console.log("Fetching albums for workspace:", req.params.workspaceName);
         
-        const albums = await dataSource.getRepository(Album).find({
-            where: { workspaceName: req.params.workspaceName }
+        // Try to find by departmentId first, then fall back to workspaceName
+        let albums = await dataSource.getRepository(Album).find({
+            where: { departmentId: req.params.workspaceName }
         });
         
+        // If no albums found by departmentId, try workspaceName
+        // if (albums.length === 0) {
+        //     albums = await dataSource.getRepository(Album).find({
+        //         where: { workspaceName: req.params.workspaceName }
+        //     });
+        // }
         
         return res.status(200).json({
             success: true,

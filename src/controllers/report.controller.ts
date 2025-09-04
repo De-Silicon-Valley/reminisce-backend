@@ -7,21 +7,25 @@ import { ObjectId } from "mongodb";
 export const createReport = async (req: Request, res: Response) => {
 	try {
 		
-		const { title, content, referenceNumber, workspaceName } = req.body;
+		const { title, content, referenceNumber, workspaceName, departmentId } = req.body;
 
-		if (!title || !content || !referenceNumber || !workspaceName) {
+		if (!title || !content || !referenceNumber || (!workspaceName && !departmentId)) {
 			return res.status(400).json({
 				success: false,
-				msg: "All fields are required: title, content, referenceNumber, workspaceName"
+				msg: "All fields are required: title, content, referenceNumber, and department information"
 			});
 		}
+
+		// Use departmentId from JWT token (set by verifyJWTToken middleware)
+		const adminDepartmentId = (req as any).departmentId; // This is now the department ObjectId as string
+		const finalDepartmentId = adminDepartmentId;
 
 		// Check if student exists and is onboarded in this department
 		const studentRepository = dataSource.getRepository(Student);
 		const student = await studentRepository.findOne({
 			where: { 
 				referenceNumber: referenceNumber,
-				workspace: workspaceName
+				departmentId: finalDepartmentId
 			}
 		});
 
@@ -36,7 +40,7 @@ export const createReport = async (req: Request, res: Response) => {
 		const report = await dataSource.getRepository(Report).create({
 			title,
 			content,
-			workspaceName,
+			departmentId: finalDepartmentId,
 			studentName: student.name || 'Unknown',
 			studentEmail: 'No email', // Student model doesn't have email field
 			referenceNumber: student.referenceNumber

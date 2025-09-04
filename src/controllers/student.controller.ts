@@ -9,9 +9,13 @@ type StudentReferenceNumberPayload = {
 
 export const createStudent = async (req: Request, res: Response) => {
 	try {
+		// Use departmentId from JWT token (set by verifyJWTToken middleware)
+		const adminDepartmentId = (req as any).departmentId; // This is now the department ObjectId as string
+		
 		const student = await dataSource.getRepository(Student).create({
 			referenceNumber: req.body.referenceNumber,
-			workspace: req.body.workspace,
+			workspace: adminDepartmentId,
+			departmentId: adminDepartmentId,
 		});
 
 		if (!student) return res.status(400).send("Unable to create student");
@@ -49,9 +53,20 @@ export const getAllStudentData = async (req: Request, res: Response) => {
 
 export const getAllStudentDataInworkspace = async (req: Request, res: Response) => {
 	try {
-		const student = await dataSource.getRepository(Student).find({ where: { workspace: req.params.workspace } });
-		if (!student) return res.status(404).send("No student found");
-		return res.status(200).send(student);
+		// Try to find by departmentId first, then fall back to workspace
+		let students = await dataSource.getRepository(Student).find({ 
+			where: { departmentId: req.params.workspace } 
+		});
+		
+		// If no students found by departmentId, try workspace
+		if (students.length === 0) {
+			students = await dataSource.getRepository(Student).find({ 
+				where: { workspace: req.params.workspace } 
+			});
+		}
+		
+		if (!students || students.length === 0) return res.status(404).send("No student found");
+		return res.status(200).send(students);
 	} catch (error) {
 		// console.log(error)
 		return res.status(500).send({
@@ -109,6 +124,7 @@ export const uplooadListOfStudentReferenceNumbersWithCorrespondingworkspace = as
 			const student = await dataSource.getRepository(Student).create({
 				referenceNumber: referenceNumber,
 				workspace: workspace,
+				departmentId: workspace, // Use workspace as departmentId for now
 			});
 
 			if (!student) unaddedReferenceNumbers.push(referenceNumber);

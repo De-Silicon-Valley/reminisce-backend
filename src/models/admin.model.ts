@@ -11,6 +11,9 @@ export class Admin {
 	@Column({ type: "text" })
 	password!: string;
 
+	@ObjectIdColumn()
+	departmentId!: ObjectId; // Links admin to department using department ObjectId
+
 	@Column("boolean", { default: true })
 	isActive: boolean = true;
 
