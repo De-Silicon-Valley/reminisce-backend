@@ -14,6 +14,7 @@ router.post("/uploadimage", validateCreateImageSchema, controller.createImage); 
 router.post("/public/upload", controller.createImage); // Public route for student uploads
 router.get("/getimages/:albumId", verifyJWTToken, controller.getImages); // Admin route with JWT
 router.get("/public/getimages/:albumId", controller.getImagesPublic); // Public route for client-side
+router.get("/count", verifyJWTToken, controller.getTotalImageCount); // Get total image count for department
 router.delete("/deleteimage/:id", verifyJWTToken, validateImageIdParam, controller.deleteImage);
 
 export default router;

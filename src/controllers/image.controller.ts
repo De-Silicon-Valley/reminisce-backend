@@ -195,6 +195,62 @@ export const getImagesPublic = async (req: Request, res: Response) => {
     }
 };
 
+export const getTotalImageCount = async (req: Request, res: Response) => {
+    try {
+        const adminDepartmentId = (req as any).departmentId; // From JWT middleware
+        
+        console.log('🔍 getTotalImageCount - Admin Department ID:', adminDepartmentId);
+        
+        if (!adminDepartmentId) {
+            return res.status(401).json({
+                success: false,
+                msg: "Admin authentication required"
+            });
+        }
+
+        // Find all images for the admin's department using workspace field
+        let images = await dataSource.getRepository(Image).find({
+            where: { 
+                workspace: adminDepartmentId
+            },
+        });
+        
+        console.log('🔍 getTotalImageCount - Found images with workspace field:', images.length);
+        
+        // If no images found by workspace field, try departmentId as ObjectId
+        if (images.length === 0) {
+            images = await dataSource.getRepository(Image).find({
+                where: { 
+                    departmentId: new ObjectId(adminDepartmentId)
+                },
+            });
+            console.log('🔍 getTotalImageCount - Found images with departmentId ObjectId:', images.length);
+        }
+        
+        // If still no images found, try departmentId as string
+        if (images.length === 0) {
+            images = await dataSource.getRepository(Image).find({
+                where: { 
+                    departmentId: adminDepartmentId
+                },
+            });
+        }
+        
+        return res.status(200).json({
+            success: true,
+            data: {
+                totalImages: images.length
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            msg: "Failed to fetch image count",
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+};
+
 export const deleteImage = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
