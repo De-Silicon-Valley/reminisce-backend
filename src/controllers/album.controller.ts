@@ -73,6 +73,58 @@ export const createAlbum = async (req: Request, res: Response) => {
     }
 };
 
+// POST /api/album/public - Public endpoint for client-side access using workspace ID
+export const getAlbumsByWorkspace = async (req: Request, res: Response) => {
+    try {
+        const { workspace } = req.body;
+        
+        if (!workspace) {
+            return res.status(400).json({
+                success: false,
+                msg: "Workspace ID is required"
+            });
+        }
+        
+        console.log("🔍 getAlbumsByWorkspace - Workspace ID:", workspace);
+        
+        // Find albums by workspace field
+        let albums = await dataSource.getRepository(Album).find({
+            where: { workspace: workspace }
+        });
+        
+        console.log("🔍 getAlbumsByWorkspace - Albums found with workspace field:", albums.length);
+        
+        // If no albums found by workspace field, try departmentId as ObjectId
+        if (albums.length === 0) {
+            console.log("🔍 getAlbumsByWorkspace - No albums found with workspace, trying departmentId as ObjectId");
+            albums = await dataSource.getRepository(Album).find({
+                where: { departmentId: new ObjectId(workspace) }
+            });
+            console.log("🔍 getAlbumsByWorkspace - Albums found with departmentId ObjectId:", albums.length);
+        }
+        
+        // If still no albums found, try departmentId as string
+        if (albums.length === 0) {
+            console.log("🔍 getAlbumsByWorkspace - No albums found with ObjectId, trying departmentId as string");
+            albums = await dataSource.getRepository(Album).find({
+                where: { departmentId: workspace }
+            });
+            console.log("🔍 getAlbumsByWorkspace - Albums found with departmentId string:", albums.length);
+        }
+        
+        return res.status(200).json({
+            success: true,
+            data: albums
+        });
+    } catch (error) {
+        console.error('Error fetching albums by workspace:', error);
+        return res.status(500).json({
+            success: false,
+            msg: "Failed to fetch albums",
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+};
 
 export const getAlbums = async (req: Request, res: Response) => {
     try {

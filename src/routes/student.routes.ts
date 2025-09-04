@@ -28,6 +28,9 @@ router.post(
 router.delete("/", [verifyJWTToken, verifyStudentReferenceNumber], controller.deleteStudentRecord);
 router.get("/", verifyJWTToken, controller.getAllStudentDataInworkspace);
 router.get("/:workspace", validateworkspaceParameter, controller.getAllStudentDataInworkspace);
+
+// Public routes for client-side access using workspace ID
+router.post("/public", controller.getStudentsByWorkspace);
 router.patch(
 	"/",
 	verifyStudentReferenceNumber,

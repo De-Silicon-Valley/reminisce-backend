@@ -83,6 +83,59 @@ export const getAllStudentData = async (req: Request, res: Response) => {
 	}
 };
 
+// POST /api/student/public - Public endpoint for client-side access using workspace ID
+export const getStudentsByWorkspace = async (req: Request, res: Response) => {
+	try {
+		const { workspace } = req.body;
+		
+		if (!workspace) {
+			return res.status(400).json({
+				success: false,
+				msg: "Workspace ID is required"
+			});
+		}
+		
+		console.log("🔍 getStudentsByWorkspace - Workspace ID:", workspace);
+		
+		// Find students by workspace field
+		let students = await dataSource.getRepository(Student).find({
+			where: { workspace: workspace }
+		});
+		
+		console.log("🔍 getStudentsByWorkspace - Students found with workspace field:", students.length);
+		
+		// If no students found by workspace field, try departmentId as ObjectId
+		if (students.length === 0) {
+			console.log("🔍 getStudentsByWorkspace - No students found with workspace, trying departmentId as ObjectId");
+			students = await dataSource.getRepository(Student).find({
+				where: { departmentId: new ObjectId(workspace) }
+			});
+			console.log("🔍 getStudentsByWorkspace - Students found with departmentId ObjectId:", students.length);
+		}
+		
+		// If still no students found, try departmentId as string
+		if (students.length === 0) {
+			console.log("🔍 getStudentsByWorkspace - No students found with ObjectId, trying departmentId as string");
+			students = await dataSource.getRepository(Student).find({
+				where: { departmentId: workspace }
+			});
+			console.log("🔍 getStudentsByWorkspace - Students found with departmentId string:", students.length);
+		}
+		
+		return res.status(200).json({
+			success: true,
+			data: students
+		});
+	} catch (error) {
+		console.error('Error fetching students by workspace:', error);
+		return res.status(500).json({
+			success: false,
+			msg: "Failed to fetch students",
+			error: error instanceof Error ? error.message : 'Unknown error'
+		});
+	}
+};
+
 export const getAllStudentDataInworkspace = async (req: Request, res: Response) => {
 	try {
 		// Use admin's department ObjectId from JWT token

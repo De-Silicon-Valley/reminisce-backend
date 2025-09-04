@@ -147,6 +147,48 @@ export class EventController {
     }
   };
 
+  // POST /api/events/public - Public endpoint for client-side access using workspace ID
+  getEventsByWorkspace = async (req: Request, res: Response) => {
+    try {
+      await this.updateEventStatuses();
+
+      const { workspace } = req.body;
+      
+      if (!workspace) {
+        return res.status(400).json({
+          success: false,
+          message: 'Workspace ID is required'
+        });
+      }
+
+      const query: any = { workspace: workspace };
+      
+      const events = await this.eventRepository.find({
+        where: query,
+        order: { eventDate: 'ASC' }
+      });
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          events,
+          pagination: {
+            current: 1,
+            pages: 1,
+            total: events.length,
+            limit: events.length
+          }
+        }
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to fetch events',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  };
+
   // GET /api/admin/events/:id
   getEventById = async (req: Request, res: Response) => {
     try {

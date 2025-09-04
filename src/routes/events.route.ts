@@ -12,6 +12,9 @@ router.get('/', eventController.getAllEvents);
 router.get('/department/:department', eventController.getEventsByDepartment);
 router.get('/:id', validateEventIdParam, eventController.getEventById);
 
+// Public routes for client-side access using workspace ID
+router.post('/public', eventController.getEventsByWorkspace);
+
 // POST, PUT, DELETE routes - token required
 router.post('/', verifyJWTToken, validateCreateEventSchema, eventController.createEvent);
 router.put('/:id', verifyJWTToken, validateEventIdParam, validateUpdateEventSchema, eventController.updateEvent);
