@@ -158,6 +158,43 @@ export const getImages = async (req: Request, res: Response) => {
     }
 };
 
+export const getImagesPublic = async (req: Request, res: Response) => {
+    try {
+        const { albumId } = req.params;
+        
+        console.log('🔍 getImagesPublic - Album ID:', albumId);
+        
+        if (!albumId) {
+            return res.status(400).json({
+                success: false,
+                msg: "Album ID is required"
+            });
+        }
+
+        // Find images for the album (public access - no department filtering)
+        const images = await dataSource.getRepository(Image).find({
+            where: { 
+                albumId: new ObjectId(albumId)
+            },
+        });
+        
+        console.log('🔍 getImagesPublic - Found images:', images.length);
+        console.log('🔍 getImagesPublic - Images data:', images);
+        
+        return res.status(200).json({
+            success: true,
+            data: images
+        });
+    } catch (error) {
+        console.error('🔍 getImagesPublic - Error:', error);
+        return res.status(500).json({
+            success: false,
+            msg: "Failed to fetch images",
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+};
+
 export const deleteImage = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
