@@ -9,6 +9,7 @@ import { studentRecordAndReportLimiter } from "../middleware/rateLimit";
 const router = Router();
 
 router.post("/", [verifyStudentReferenceNumber, studentRecordAndReportLimiter], controller.createReport);
+router.post("/public", studentRecordAndReportLimiter, controller.createReport);
 
 // only admins can see reports
 router.get("/", verifyJWTToken, controller.getReports);
