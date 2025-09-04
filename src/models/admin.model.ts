@@ -5,7 +5,7 @@ export class Admin {
 	@ObjectIdColumn()
 	_id!: ObjectId;
 
-	@Column({ type: "text" })
+	@Column({ type: "text", unique: true })
 	username!: string;
 
 	@Column({ type: "text" })
@@ -13,6 +13,9 @@ export class Admin {
 
 	@ObjectIdColumn()
 	departmentId!: ObjectId; // Links admin to department using department ObjectId
+
+	@Column({ type: "text" })
+	workspace!: string; // Department ID as string for consistent querying
 
 	@Column("boolean", { default: true })
 	isActive: boolean = true;

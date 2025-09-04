@@ -26,8 +26,8 @@ export class Student {
 	@Column({ type: "text" })
 	workspace!: string;
 
-	@Column({ type: "text" })
-	departmentId!: string;
+	@ObjectIdColumn()
+	departmentId!: ObjectId;
 
 	@CreateDateColumn()
 	createdAt!: Date;

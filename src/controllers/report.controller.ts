@@ -7,25 +7,52 @@ import { ObjectId } from "mongodb";
 export const createReport = async (req: Request, res: Response) => {
 	try {
 		
-		const { title, content, referenceNumber, workspaceName, departmentId } = req.body;
+		const { title, content, referenceNumber, departmentSlug } = req.body;
 
-		if (!title || !content || !referenceNumber || (!workspaceName && !departmentId)) {
+		if (!title || !content || !referenceNumber) {
 			return res.status(400).json({
 				success: false,
-				msg: "All fields are required: title, content, referenceNumber, and department information"
+				msg: "All fields are required: title, content, and referenceNumber"
 			});
 		}
 
-		// Use departmentId from JWT token (set by verifyJWTToken middleware)
-		const adminDepartmentId = (req as any).departmentId; // This is now the department ObjectId as string
-		const finalDepartmentId = adminDepartmentId;
+		// Determine department ID - either from JWT token (admin) or department slug (student)
+		let adminDepartmentId: string;
+		let finalDepartmentId: ObjectId;
+		
+		if ((req as any).departmentId) {
+			// Admin creating report (has JWT token)
+			adminDepartmentId = (req as any).departmentId;
+			finalDepartmentId = new ObjectId(adminDepartmentId);
+		} else if (departmentSlug) {
+			// Student creating report (using department slug)
+			const { Department } = await import("../models/department.model");
+			const department = await dataSource.getRepository(Department).findOne({
+				where: { slug: departmentSlug }
+			});
+			
+			if (!department) {
+				return res.status(404).json({
+					success: false,
+					msg: "Department not found"
+				});
+			}
+			
+			adminDepartmentId = department._id.toString();
+			finalDepartmentId = department._id;
+		} else {
+			return res.status(400).json({
+				success: false,
+				msg: "Department information is required"
+			});
+		}
 
 		// Check if student exists and is onboarded in this department
 		const studentRepository = dataSource.getRepository(Student);
 		const student = await studentRepository.findOne({
 			where: { 
 				referenceNumber: referenceNumber,
-				departmentId: finalDepartmentId
+				workspace: adminDepartmentId
 			}
 		});
 
@@ -41,6 +68,7 @@ export const createReport = async (req: Request, res: Response) => {
 			title,
 			content,
 			departmentId: finalDepartmentId,
+			workspace: adminDepartmentId,
 			studentName: student.name || 'Unknown',
 			studentEmail: 'No email', // Student model doesn't have email field
 			referenceNumber: student.referenceNumber
@@ -72,18 +100,23 @@ export const createReport = async (req: Request, res: Response) => {
 export const getReports = async (req: Request, res: Response) => {
 	try {
 		console.log('Getting reports, admin ID:', (req as any).userId);
+		console.log('Admin department ID:', (req as any).departmentId);
 		console.log('Data source initialized:', dataSource.isInitialized);
 		console.log('Report entity available:', !!dataSource.getRepository(Report));
 		
-		let condition = { where: {} };
+		// Use admin's department ObjectId from JWT token
+		const adminDepartmentId = (req as any).departmentId;
+		
+		let whereCondition: any = { workspace: adminDepartmentId };
 
 		if (req.params.id) {
-			condition = {
-				where: { _id: new ObjectId(req.params.id) },
+			whereCondition = { 
+				_id: new ObjectId(req.params.id),
+				workspace: adminDepartmentId 
 			};
 		}
 
-		const reports = await dataSource.getRepository(Report).find(condition);
+		const reports = await dataSource.getRepository(Report).find({ where: whereCondition });
 
 		return res.status(200).json({
 			success: true,

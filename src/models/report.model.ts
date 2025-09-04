@@ -20,8 +20,11 @@ export class Report {
 	@Column({ type: "text" })
 	referenceNumber!: string;
 
+	@ObjectIdColumn()
+	departmentId!: ObjectId;
+
 	@Column({ type: "text" })
-	departmentId!: string;
+	workspace!: string;
 
 	@Column("boolean", { default: false })
 	resolved: boolean = false;

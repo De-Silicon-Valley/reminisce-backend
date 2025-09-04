@@ -2,6 +2,7 @@ import e, { Request, Response } from "express";
 import { dataSource } from "../dataSource";
 import { Album } from "../models/album.model";
 import { Admin } from "typeorm";
+import { ObjectId } from "mongodb";
 
 export const createAlbum = async (req: Request, res: Response) => {
     try {
@@ -9,23 +10,35 @@ export const createAlbum = async (req: Request, res: Response) => {
         console.log('Admin ID from token:', (req as any).userId);
         console.log('Request headers:', req.headers);
         
-        const { albumName, workspaceName, department, departmentId } = req.body;
+        const { albumName } = req.body;
         
-        console.log('Extracted fields:', { albumName, workspaceName, department, departmentId });
+        console.log('Extracted fields:', { albumName });
         
-        if (!albumName || (!workspaceName && !department && !departmentId)) {
-            console.log('Validation failed: missing required fields');
+        if (!albumName) {
+            console.log('Validation failed: missing album name');
             return res.status(400).json({ 
-                msg: "Album name and department information are required",
-                received: { albumName, workspaceName, department, departmentId }
+                msg: "Album name is required",
+                received: { albumName }
             });
         }
 
         // Use departmentId from JWT token (set by verifyJWTToken middleware)
         const adminDepartmentId = (req as any).departmentId; // This is now the department ObjectId as string
-        const finalDepartmentId = adminDepartmentId;
-        const finalWorkspaceName = adminDepartmentId;
         const adminId = (req as any).userId;
+        
+        console.log('JWT Token Info - Admin ID:', adminId);
+        console.log('JWT Token Info - Department ID:', adminDepartmentId);
+        
+        if (!adminDepartmentId) {
+            console.log('Error: No department ID found in JWT token');
+            return res.status(400).json({ 
+                msg: "Admin department information not found in token",
+                received: { adminId, adminDepartmentId }
+            });
+        }
+        
+        const finalDepartmentId = new ObjectId(adminDepartmentId);
+        const finalWorkspaceName = adminDepartmentId;
         
         console.log('Final department ID:', finalDepartmentId);
         console.log('Final workspace name:', finalWorkspaceName);
@@ -34,6 +47,7 @@ export const createAlbum = async (req: Request, res: Response) => {
             albumName,
             workspaceName: finalWorkspaceName,
             departmentId: finalDepartmentId,
+            workspace: adminDepartmentId,
         });
 
         if (!album) {
@@ -62,19 +76,35 @@ export const createAlbum = async (req: Request, res: Response) => {
 
 export const getAlbums = async (req: Request, res: Response) => {
     try {
-        console.log("Fetching albums for workspace:", req.params.workspaceName);
+        // Use admin's department ObjectId from JWT token
+        const adminDepartmentId = (req as any).departmentId;
+        console.log("🔍 getAlbums - Admin department ID from JWT:", adminDepartmentId);
         
-        // Try to find by departmentId first, then fall back to workspaceName
+        // Find albums by admin's department using workspace field
         let albums = await dataSource.getRepository(Album).find({
-            where: { departmentId: req.params.workspaceName }
+            where: { workspace: adminDepartmentId }
         });
         
-        // If no albums found by departmentId, try workspaceName
-        // if (albums.length === 0) {
-        //     albums = await dataSource.getRepository(Album).find({
-        //         where: { workspaceName: req.params.workspaceName }
-        //     });
-        // }
+        console.log("🔍 getAlbums - Albums found with workspace field:", albums.length);
+        console.log("🔍 getAlbums - Albums data:", albums);
+        
+        // If no albums found by workspace field, try departmentId as ObjectId
+        if (albums.length === 0) {
+            console.log("🔍 getAlbums - No albums found with workspace, trying departmentId as ObjectId");
+            albums = await dataSource.getRepository(Album).find({
+                where: { departmentId: new ObjectId(adminDepartmentId) }
+            });
+            console.log("🔍 getAlbums - Albums found with departmentId ObjectId:", albums.length);
+        }
+        
+        // If still no albums found, try departmentId as string
+        if (albums.length === 0) {
+            console.log("🔍 getAlbums - No albums found with ObjectId, trying departmentId as string");
+            albums = await dataSource.getRepository(Album).find({
+                where: { departmentId: adminDepartmentId }
+            });
+            console.log("🔍 getAlbums - Albums found with departmentId string:", albums.length);
+        }
         
         return res.status(200).json({
             success: true,

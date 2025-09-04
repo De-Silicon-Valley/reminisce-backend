@@ -26,7 +26,7 @@ router.post(
 );
 
 router.delete("/", [verifyJWTToken, verifyStudentReferenceNumber], controller.deleteStudentRecord);
-router.get("/", controller.getAllStudentData);
+router.get("/", verifyJWTToken, controller.getAllStudentDataInworkspace);
 router.get("/:workspace", validateworkspaceParameter, controller.getAllStudentDataInworkspace);
 router.patch(
 	"/",
@@ -36,9 +36,8 @@ router.patch(
 	controller.updateStudentDataHavingTheReferenceNumber
 );
 router.post(
-	"/:workspace",
+	"/upload",
 	verifyJWTToken,
-	validateworkspaceParameter,
 	validateStudentReferenceNumberPayloadSchema,
 	controller.uplooadListOfStudentReferenceNumbersWithCorrespondingworkspace
 );

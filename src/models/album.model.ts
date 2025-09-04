@@ -11,8 +11,11 @@ export class Album{
     @Column({ type: "text" })
     workspaceName!: string;
 
+    @ObjectIdColumn()
+    departmentId!: ObjectId;
+
     @Column({ type: "text" })
-    departmentId!: string;
+    workspace!: string;
 
     @Column("boolean", { default: true })
     isActive: boolean = true;

@@ -6,6 +6,7 @@ import { Event } from "../models/events.model";
 import { Album } from "../models/album.model";
 import { Image } from "../models/image.model";
 import { In } from "typeorm";
+import { ObjectId } from "mongodb";
 
 // import { Request, Response } from "express";
 // import { dataSource } from "../dataSource";
@@ -75,46 +76,67 @@ export const getDepartmentBySlug = async (req: Request, res: Response) => {
 
 export const getDepartmentStatistics = async (req: Request, res: Response) => {
   try {
-    const slug = req.params.slug;
+    // Use admin's department ObjectId from JWT token
+    const adminDepartmentId = (req as any).departmentId;
     
     // First, get the department to verify it exists
     const dept = await dataSource
       .getRepository(Department)
-      .findOne({ where: { slug: slug } });
+      .findOne({ where: { _id: new ObjectId(adminDepartmentId) } });
 
     if (!dept) {
       return res.status(404).send({ msg: "Department not found." });
     }
 
-    // Get department name and code for reference
+    // Get department name, code, and slug for reference
     const departmentName = dept.name;
     const departmentCode = dept.code;
+    const slug = dept.slug;
 
-    // Count total users (students) in this department
-    const totalUsers = await dataSource
+    // Count total users (students) in this department - prioritize workspace field
+    console.log('🔍 Department Stats - Admin department ID:', adminDepartmentId);
+    let totalUsers = await dataSource
       .getRepository(Student)
-      .count({ where: { workspace: departmentName } });
+      .count({ where: { workspace: adminDepartmentId } });
+    console.log('🔍 Department Stats - Students found with workspace field:', totalUsers);
+    
+    // If no students found with workspace field, try departmentId as ObjectId
+    if (totalUsers === 0) {
+      totalUsers = await dataSource
+        .getRepository(Student)
+        .count({ where: { departmentId: new ObjectId(adminDepartmentId) } });
+      console.log('🔍 Department Stats - Students found with ObjectId:', totalUsers);
+    }
+    
+    // If still no students found, try departmentId as string
+    if (totalUsers === 0) {
+      totalUsers = await dataSource
+        .getRepository(Student)
+        .count({ where: { departmentId: adminDepartmentId } });
+      console.log('🔍 Department Stats - Students found with string:', totalUsers);
+    }
 
-    // Count active events (ongoing and upcoming) in a single query
+    // Count active events (ongoing and upcoming) in this department
     const totalActiveEvents = await dataSource
       .getRepository(Event)
       .count({ 
         where: { 
-          status: In(["ongoing", "upcoming"]) 
+          status: In(["ongoing", "upcoming"]),
+          workspace: adminDepartmentId
         } 
       });
 
     // Count albums in this department
     const totalAlbums = await dataSource
       .getRepository(Album)
-      .count({ where: { workspaceName: departmentName } });
+      .count({ where: { workspace: adminDepartmentId } });
 
     // Count images in this department efficiently
     // Get album names first, then count images in a single query
     const departmentAlbums = await dataSource
       .getRepository(Album)
       .find({ 
-        where: { workspaceName: departmentName },
+        where: { workspace: adminDepartmentId },
         select: ["albumName"] 
       });
 

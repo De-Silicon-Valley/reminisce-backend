@@ -27,8 +27,11 @@ export class Event {
     @Column({ type: "text" })
     createdBy!: string;
 
+    @ObjectIdColumn()
+    departmentId!: ObjectId;
+
     @Column({ type: "text" })
-    departmentId!: string;
+    workspace!: string;
 
 	@CreateDateColumn()
     createdAt!: Date;

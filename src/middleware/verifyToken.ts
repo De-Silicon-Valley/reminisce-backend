@@ -37,9 +37,11 @@ export const verifyJWTToken = (req: Request, res: Response, next: NextFunction) 
 				});
 			}
 		}
+		
 		//attach the decoded id and departmentId to the request for the next handler
 		(req as unknown as { userId: string; departmentId: string }).userId = (decoded as { id: string }).id;
 		(req as unknown as { userId: string; departmentId: string }).departmentId = (decoded as { departmentId: string }).departmentId;
+		
 		next();
 	});
 };

@@ -40,7 +40,6 @@ export class EventController {
 
       const { 
         status, 
-        department,
         page = 1, 
         limit = 10, 
         sortBy = 'eventDate', 
@@ -52,9 +51,10 @@ export class EventController {
         query.status = status;
       }
       
-      // Filter by department if provided
-      if (department) {
-        query.departmentId = department;
+      // Filter by admin's department (from JWT token)
+      const adminDepartmentId = (req as any).departmentId;
+      if (adminDepartmentId) {
+        query.departmentId = new ObjectId(adminDepartmentId);
       }
 
       const skip = (Number(page) - 1) * Number(limit);
@@ -97,7 +97,6 @@ export class EventController {
     try {
       await this.updateEventStatuses();
       
-      const { department } = req.params;
       const { 
         status, 
         page = 1, 
@@ -106,7 +105,9 @@ export class EventController {
         sortOrder = 'asc' 
       } = req.query;
 
-      const query: any = { departmentId: department };
+      // Use admin's department ObjectId from JWT token
+      const adminDepartmentId = (req as any).departmentId;
+      const query: any = { workspace: adminDepartmentId };
       if (status && ['upcoming', 'ongoing', 'completed', 'cancelled'].includes(status as string)) {
         query.status = status;
       }
@@ -207,7 +208,8 @@ export class EventController {
       const adminId = (req as any).userId;
       const departmentId = (req as any).departmentId;
       event.createdBy = adminId;
-      event.departmentId = departmentId; // This is now the department ObjectId as string
+      event.departmentId = new ObjectId(departmentId); // Convert string to ObjectId
+      event.workspace = departmentId; // Also set workspace field
       
       // Auto-set status based on event date
       const now = new Date();

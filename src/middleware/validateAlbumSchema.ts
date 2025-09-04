@@ -7,15 +7,7 @@ const createAlbumSchema = Joi.object({
 	workspaceName: Joi.string().optional(),
 	department: Joi.string().optional(),
 	departmentId: Joi.string().optional(),
-}).custom((value, helpers) => {
-	// Custom validation to ensure at least one of workspaceName, department, or departmentId is provided
-	if (!value.workspaceName && !value.department && !value.departmentId) {
-		return helpers.error('any.invalid', { 
-			message: 'At least one of workspaceName, department, or departmentId is required' 
-		});
-	}
-	return value;
-}, 'validate-required-fields');
+});
 
 export const validateCreateAlbumSchema = (req: Request, res: Response, next: NextFunction) => {
 
@@ -30,7 +22,7 @@ export const validateCreateAlbumSchema = (req: Request, res: Response, next: Nex
 				workspaceName: 'string (optional)',
 				department: 'string (optional)',
 				departmentId: 'string (optional)',
-				note: 'At least one of workspaceName, department, or departmentId is required'
+				note: 'Department information will be automatically set from JWT token'
 			}
 		});
 	}

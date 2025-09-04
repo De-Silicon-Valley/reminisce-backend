@@ -14,8 +14,8 @@ export const createStudent = async (req: Request, res: Response) => {
 		
 		const student = await dataSource.getRepository(Student).create({
 			referenceNumber: req.body.referenceNumber,
-			workspace: adminDepartmentId,
-			departmentId: adminDepartmentId,
+			workspace: adminDepartmentId, // Keep as string for backward compatibility
+			departmentId: new ObjectId(adminDepartmentId),
 		});
 
 		if (!student) return res.status(400).send("Unable to create student");
@@ -32,11 +32,43 @@ export const createStudent = async (req: Request, res: Response) => {
 };
 
 export const deleteStudentRecord = async (req: Request, res: Response) => {
-	await dataSource.getRepository(Student).delete({
+	// Use admin's department ObjectId from JWT token
+	const adminDepartmentId = (req as any).departmentId;
+	
+	console.log('🔍 Delete - Admin departmentId:', adminDepartmentId);
+	console.log('🔍 Delete - Reference number:', req.body.referenceNumber);
+	
+	// Delete student by reference number and workspace (consistent with other operations)
+	let deleteResult = await dataSource.getRepository(Student).delete({
 		referenceNumber: req.body.referenceNumber,
+		workspace: adminDepartmentId,
 	});
+	
+	console.log('🔍 Delete - Workspace delete result:', deleteResult.affected);
+	
+	// If no student found with workspace field, try departmentId as ObjectId
+	if (deleteResult.affected === 0) {
+		deleteResult = await dataSource.getRepository(Student).delete({
+			referenceNumber: req.body.referenceNumber,
+			departmentId: new ObjectId(adminDepartmentId),
+		});
+		console.log('🔍 Delete - ObjectId delete result:', deleteResult.affected);
+	}
+	
+	// If still no student found, try departmentId as string
+	if (deleteResult.affected === 0) {
+		deleteResult = await dataSource.getRepository(Student).delete({
+			referenceNumber: req.body.referenceNumber,
+			departmentId: adminDepartmentId,
+		});
+		console.log('🔍 Delete - String delete result:', deleteResult.affected);
+	}
+	
+	if (deleteResult.affected === 0) {
+		return res.status(404).send({ msg: "Student not found or not authorized to delete." });
+	}
 
-	return res.status(204).send({ msg: "Student record deleted succcesfully." });
+	return res.status(204).send({ msg: "Student record deleted successfully." });
 };
 
 export const getAllStudentData = async (req: Request, res: Response) => {
@@ -53,19 +85,45 @@ export const getAllStudentData = async (req: Request, res: Response) => {
 
 export const getAllStudentDataInworkspace = async (req: Request, res: Response) => {
 	try {
-		// Try to find by departmentId first, then fall back to workspace
-		let students = await dataSource.getRepository(Student).find({ 
-			where: { departmentId: req.params.workspace } 
-		});
+		// Use admin's department ObjectId from JWT token
+		const adminDepartmentId = (req as any).departmentId;
+		console.log('🔍 Student Controller - Admin department ID:', adminDepartmentId);
 		
-		// If no students found by departmentId, try workspace
-		if (students.length === 0) {
-			students = await dataSource.getRepository(Student).find({ 
-				where: { workspace: req.params.workspace } 
+		// Query for students - prioritize workspace field since departmentId is corrupted
+		// The students have correct department ID in workspace field, not departmentId field
+		let students = await dataSource.getRepository(Student).find({ 
+			where: { workspace: adminDepartmentId }
+		});
+		console.log('Students found with workspace field:', students.length);
+		if (students.length > 0) {
+			console.log('🔍 Student Controller - Sample student:', {
+				_id: students[0]._id,
+				workspace: students[0].workspace,
+				referenceNumber: students[0].referenceNumber
 			});
 		}
 		
-		if (!students || students.length === 0) return res.status(404).send("No student found");
+		// If no students found with workspace field, try departmentId as ObjectId
+		if (students.length === 0) {
+			students = await dataSource.getRepository(Student).find({ 
+				where: { departmentId: new ObjectId(adminDepartmentId) }
+			});
+			console.log('Students found with ObjectId format:', students.length);
+		}
+		
+		// If still no students found, try departmentId as string
+		if (students.length === 0) {
+			students = await dataSource.getRepository(Student).find({ 
+				where: { departmentId: adminDepartmentId }
+			});
+			console.log('Students found with string format:', students.length);
+		}
+		
+		if (!students || students.length === 0) {
+			console.log('🔍 Student Controller - No students found, returning 404');
+			return res.status(404).send("No student found");
+		}
+		console.log('🔍 Student Controller - Returning students:', students.length);
 		return res.status(200).send(students);
 	} catch (error) {
 		// console.log(error)
@@ -105,7 +163,8 @@ export const uplooadListOfStudentReferenceNumbersWithCorrespondingworkspace = as
 	res: Response
 ) => {
 	const payload = req.body as StudentReferenceNumberPayload;
-	const workspace = req.params.workspace;
+	// Use departmentId from JWT token (set by verifyJWTToken middleware)
+	const adminDepartmentId = (req as any).departmentId; // This is now the department ObjectId as string
 
 	try {
 		const alredyAddedReferenceNumbers: string[] = [];
@@ -123,8 +182,8 @@ export const uplooadListOfStudentReferenceNumbersWithCorrespondingworkspace = as
 
 			const student = await dataSource.getRepository(Student).create({
 				referenceNumber: referenceNumber,
-				workspace: workspace,
-				departmentId: workspace, // Use workspace as departmentId for now
+				workspace: adminDepartmentId, // Keep as string for backward compatibility
+				departmentId: new ObjectId(adminDepartmentId),
 			});
 
 			if (!student) unaddedReferenceNumbers.push(referenceNumber);
