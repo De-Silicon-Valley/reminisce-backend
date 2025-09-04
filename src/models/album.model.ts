@@ -8,6 +8,9 @@ export class Album{
     @Column({ type: "text" })
     albumName!: string;
 
+    @Column({ type: "text", nullable: true })
+    coverImage?: string;
+
     @Column({ type: "text" })
     workspaceName!: string;
 

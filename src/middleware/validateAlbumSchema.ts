@@ -4,6 +4,7 @@ import Joi from "joi";
 // Album creation validation schema
 const createAlbumSchema = Joi.object({
 	albumName: Joi.string().required(),
+	coverImage: Joi.string().uri().optional(),
 	workspaceName: Joi.string().optional(),
 	department: Joi.string().optional(),
 	departmentId: Joi.string().optional(),
@@ -19,6 +20,7 @@ export const validateCreateAlbumSchema = (req: Request, res: Response, next: Nex
 			received: req.body,
 			expected: {
 				albumName: 'string (required)',
+				coverImage: 'string (optional)',
 				workspaceName: 'string (optional)',
 				department: 'string (optional)',
 				departmentId: 'string (optional)',
@@ -33,6 +35,7 @@ export const validateCreateAlbumSchema = (req: Request, res: Response, next: Nex
 // Album update validation schema (all fields optional for PATCH/PUT)
 const updateAlbumSchema = Joi.object({
 	albumName: Joi.string().optional(),
+	coverImage: Joi.string().uri().optional(),
 	workspaceName: Joi.string().optional(),
 	department: Joi.string().optional(),
 	departmentId: Joi.string().optional(),

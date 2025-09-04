@@ -10,9 +10,9 @@ export const createAlbum = async (req: Request, res: Response) => {
         console.log('Admin ID from token:', (req as any).userId);
         console.log('Request headers:', req.headers);
         
-        const { albumName } = req.body;
+        const { albumName, coverImage } = req.body;
         
-        console.log('Extracted fields:', { albumName });
+        console.log('Extracted fields:', { albumName, coverImage });
         
         if (!albumName) {
             console.log('Validation failed: missing album name');
@@ -45,6 +45,7 @@ export const createAlbum = async (req: Request, res: Response) => {
 
     const album = await dataSource.getRepository(Album).create({
             albumName,
+            coverImage: coverImage || undefined,
             workspaceName: finalWorkspaceName,
             departmentId: finalDepartmentId,
             workspace: adminDepartmentId,
