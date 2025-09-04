@@ -1,5 +1,6 @@
 import { Router } from "express";
 import * as controller from "../controllers/image.controller";
+import { verifyJWTToken } from "../middleware/verifyToken";
 
 import {
 	validateCreateImageSchema,
@@ -10,7 +11,8 @@ import {
 const router = Router();
 
 router.post("/uploadimage", validateCreateImageSchema, controller.createImage); // on create of image increase the count of the number of images
-router.get("/getimages/:albumName", validateAlbumNameParam, controller.getImages);
-router.delete("/deleteimage/:id", validateImageIdParam, controller.deleteImage);
+router.post("/public/upload", controller.createImage); // Public route for student uploads
+router.get("/getimages/:albumId", verifyJWTToken, controller.getImages);
+router.delete("/deleteimage/:id", verifyJWTToken, validateImageIdParam, controller.deleteImage);
 
 export default router;

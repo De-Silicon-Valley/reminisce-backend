@@ -43,14 +43,14 @@ export const createAlbum = async (req: Request, res: Response) => {
         console.log('Final department ID:', finalDepartmentId);
         console.log('Final workspace name:', finalWorkspaceName);
 
-        const album = await dataSource.getRepository(Album).create({
+    const album = await dataSource.getRepository(Album).create({
             albumName,
             workspaceName: finalWorkspaceName,
             departmentId: finalDepartmentId,
             workspace: adminDepartmentId,
-        });
+    });
 
-        if (!album) {
+    if (!album) {
             console.log('Failed to create album entity');
             return res.status(400).json({ msg: "Unable to create album." });
         }
@@ -195,6 +195,32 @@ export const deleteAlbum = async (req: Request, res: Response) => {
             success: false,
             msg: "Failed to delete album",
             error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+};
+
+// GET /api/album/:id - Get single album by ID
+export const getAlbumById = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ success: false, msg: "Album ID is required" });
+        }
+
+        const album = await dataSource.getRepository(Album).findOne({ 
+            where: { _id: new ObjectId(id) } 
+        });
+
+        if (!album) {
+            return res.status(404).json({ success: false, msg: "Album not found" });
+        }
+
+        return res.status(200).json({ success: true, data: album });
+    } catch (error) {
+        return res.status(500).json({ 
+            success: false, 
+            msg: "Failed to fetch album", 
+            error: error instanceof Error ? error.message : 'Unknown error' 
         });
     }
 };

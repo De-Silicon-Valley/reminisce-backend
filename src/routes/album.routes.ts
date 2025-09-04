@@ -7,6 +7,7 @@ const router = Router();
 
 // GET routes - no token required for public access, but we'll use JWT for admin filtering
 router.get("/getalbums", verifyJWTToken, controller.getAlbums);
+router.get("/:id", controller.getAlbumById);
 
 // Public routes for client-side access using workspace ID
 router.post("/public", controller.getAlbumsByWorkspace);
